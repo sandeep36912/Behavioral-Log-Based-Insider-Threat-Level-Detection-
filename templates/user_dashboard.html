@@ -1,0 +1,390 @@
+User dashboard · HTML
+Copy
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Insider Threat Level Detection System — My Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#050810;--s1:#080e1c;--s2:#0f1729;--s3:#161f33;--b:rgba(99,179,237,0.1);--ac:#3b82f6;--ac2:#06b6d4;--danger:#ef4444;--warn:#f59e0b;--safe:#10b981;--text:#e2e8f0;--m:#475569;--fh:'Syne',sans-serif;--fm:'DM Mono',monospace;--fb:'Instrument Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);display:flex;min-height:100vh;font-size:14px;}
+ 
+/* SIDEBAR */
+.sb{width:230px;background:var(--s1);border-right:1px solid var(--b);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;transition:transform 0.3s;}
+.sb-brand{padding:20px 18px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px;}
+.lb{width:30px;height:30px;background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;}
+.bn{font-family:var(--fh);font-weight:800;font-size:0.95rem;}
+.bs{font-size:0.6rem;color:var(--m);font-family:var(--fm);letter-spacing:0.08em;}
+.sec{padding:14px 12px 4px;font-family:var(--fm);font-size:0.6rem;color:var(--m);letter-spacing:0.12em;text-transform:uppercase;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:7px;margin:1px 8px;cursor:pointer;color:var(--m);font-size:0.8rem;text-decoration:none;transition:all 0.2s;}
+.ni:hover{background:rgba(255,255,255,0.04);color:var(--text);}
+.ni.active{background:rgba(59,130,246,0.12);color:var(--ac);}
+.sb-user{padding:14px;border-top:1px solid var(--b);margin-top:auto;display:flex;align-items:center;gap:10px;}
+.av{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:0.75rem;flex-shrink:0;font-weight:700;}
+ 
+/* MAIN */
+.main{margin-left:230px;flex:1;display:flex;flex-direction:column;}
+.tb{background:var(--s1);border-bottom:1px solid var(--b);padding:12px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
+.tb-t{font-family:var(--fh);font-size:1rem;font-weight:700;}
+.tb-r{display:flex;align-items:center;gap:12px;}
+.status-ok{display:flex;align-items:center;gap:6px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);padding:4px 10px;border-radius:5px;font-size:0.7rem;font-family:var(--fm);color:var(--safe);}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--safe);animation:p 2s infinite;}
+@keyframes p{0%,100%{opacity:1}50%{opacity:0.3}}
+.clk{font-family:var(--fm);font-size:0.72rem;color:var(--m);}
+.logout-btn{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#fca5a5;font-size:0.72rem;padding:5px 10px;border-radius:5px;text-decoration:none;font-family:var(--fm);transition:all 0.2s;}
+.logout-btn:hover{background:rgba(239,68,68,0.2);}
+ 
+/* CONTENT */
+.content{padding:22px 28px;display:flex;flex-direction:column;gap:18px;}
+ 
+/* WELCOME BANNER */
+.welcome{background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(6,182,212,0.08));border:1px solid rgba(59,130,246,0.2);border-radius:14px;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.welcome h2{font-family:var(--fh);font-size:1.25rem;font-weight:800;}
+.welcome p{font-size:0.82rem;color:var(--m);margin-top:4px;}
+.file-badge{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);border-radius:10px;padding:14px 22px;text-align:center;}
+.file-badge .num{font-family:var(--fh);font-size:2rem;font-weight:800;color:var(--ac2);}
+.file-badge .lbl{font-size:0.68rem;color:var(--m);font-family:var(--fm);}
+ 
+/* KPI ROW */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.kpi{background:var(--s1);border:1px solid var(--b);border-radius:12px;padding:18px;position:relative;overflow:hidden;}
+.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.kpi.blue::after{background:var(--ac);}
+.kpi.green::after{background:var(--safe);}
+.kpi.yellow::after{background:var(--warn);}
+.kpi.red::after{background:var(--danger);}
+.kl{font-family:var(--fm);font-size:0.62rem;color:var(--m);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px;}
+.kv{font-family:var(--fh);font-size:1.7rem;font-weight:800;}
+.kv.blue{color:var(--ac2);}
+.kv.green{color:var(--safe);}
+.kv.yellow{color:var(--warn);}
+.kv.red{color:var(--danger);}
+.ks{font-size:0.72rem;color:var(--m);margin-top:4px;}
+ 
+/* RISK GAUGE CARD */
+.risk-card{background:var(--s1);border:1px solid var(--b);border-radius:14px;padding:22px;display:grid;grid-template-columns:1fr 160px;gap:20px;align-items:center;}
+.rc-label{font-family:var(--fm);font-size:0.65rem;color:var(--m);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
+.rc-score{font-family:var(--fh);font-size:3rem;font-weight:800;}
+.rc-level{font-size:0.82rem;font-weight:600;margin-top:4px;}
+.factors{display:flex;flex-direction:column;gap:7px;margin-top:14px;}
+.frow{display:flex;align-items:center;gap:10px;font-size:0.75rem;}
+.flabel{color:var(--m);width:130px;font-family:var(--fm);font-size:0.68rem;}
+.fbar{flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
+.ffill{height:100%;border-radius:2px;}
+.fval{font-family:var(--fm);font-size:0.65rem;color:var(--m);width:25px;text-align:right;}
+.gauge-wrap{position:relative;width:150px;height:150px;}
+.gauge-wrap canvas{width:100%!important;height:100%!important;}
+.gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.gc-num{font-family:var(--fh);font-size:1.8rem;font-weight:800;}
+.gc-txt{font-family:var(--fm);font-size:0.6rem;color:var(--m);}
+ 
+/* GRID */
+.g2{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;}
+.g22{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.card{background:var(--s1);border:1px solid var(--b);border-radius:13px;padding:20px;}
+.ct{font-family:var(--fh);font-size:0.9rem;font-weight:700;margin-bottom:3px;}
+.cs{font-size:0.72rem;color:var(--m);margin-bottom:14px;}
+canvas{max-height:200px;}
+ 
+/* ALERTS */
+.alert-list{display:flex;flex-direction:column;gap:8px;}
+.alert-item{background:var(--s2);border-radius:9px;padding:12px;border-left:3px solid;}
+.alert-item.low{border-color:var(--safe);}
+.alert-item.medium{border-color:var(--warn);}
+.alert-item.high{border-color:var(--danger);}
+.ah{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.at{font-size:0.8rem;font-weight:600;}
+.ab{font-family:var(--fm);font-size:0.62rem;padding:2px 6px;border-radius:3px;}
+.bl{background:rgba(16,185,129,0.15);color:#6ee7b7;}
+.bm{background:rgba(245,158,11,0.15);color:#fcd34d;}
+.bh{background:rgba(239,68,68,0.15);color:#fca5a5;}
+.ad{font-size:0.73rem;color:var(--m);line-height:1.5;}
+ 
+/* TABLE */
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{font-family:var(--fm);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--m);padding:7px 10px;border-bottom:1px solid var(--b);text-align:left;white-space:nowrap;}
+td{font-size:0.78rem;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.025);vertical-align:middle;}
+tr:hover td{background:rgba(255,255,255,0.015);}
+.mono{font-family:var(--fm);font-size:0.7rem;}
+.sc{display:inline-flex;align-items:center;gap:4px;font-family:var(--fm);font-size:0.62rem;padding:2px 7px;border-radius:3px;}
+.sn{background:rgba(16,185,129,0.12);color:#6ee7b7;}
+.ss{background:rgba(239,68,68,0.12);color:#fca5a5;}
+.sf{background:rgba(245,158,11,0.12);color:#fcd34d;}
+ 
+/* HEATMAP */
+.hm{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;margin:10px 0;}
+.hmc{height:20px;border-radius:3px;cursor:pointer;transition:opacity 0.2s;}
+.hmc:hover{opacity:0.7;}
+.hm-labels{display:flex;justify-content:space-between;font-family:var(--fm);font-size:0.58rem;color:var(--m);}
+ 
+/* SIMULATE PANEL */
+.sim-panel{background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.15);border-radius:12px;padding:16px;}
+.sim-title{font-family:var(--fm);font-size:0.7rem;color:var(--warn);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;}
+.sim-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.sim-btn{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:var(--warn);font-size:0.72rem;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:var(--fm);transition:all 0.2s;}
+.sim-btn:hover{background:rgba(245,158,11,0.2);}
+.sim-result{font-family:var(--fm);font-size:0.7rem;color:var(--safe);margin-top:8px;display:none;}
+ 
+@media(max-width:900px){.sb{transform:translateX(-100%)}.main{margin-left:0}.kpis{grid-template-columns:repeat(2,1fr)}.g2,.g22{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+ 
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-brand">
+    <div class="lb">🛡️</div>
+    <div><div class="bn">ThreatGuard<span style="color:var(--ac)">AI</span></div><div class="bs">USER PORTAL</div></div>
+  </div>
+  <div class="sec">Overview</div>
+  <a class="ni active" href="/dashboard">📊 My Dashboard</a>
+  <a class="ni" href="#">🕐 Activity Log</a>
+  <a class="ni" href="#">💻 Sessions</a>
+  <div class="sec">Security</div>
+  <a class="ni" href="#">🔔 My Alerts {% if my_alerts %}<span style="margin-left:auto;background:rgba(245,158,11,0.2);color:var(--warn);font-size:0.6rem;padding:1px 5px;border-radius:3px;">{{ my_alerts|length }}</span>{% endif %}</a>
+  <a class="ni" href="#">🔑 Access Rights</a>
+  <div class="sec">Account</div>
+  <a class="ni" href="#">⚙️ Preferences</a>
+  <a class="ni" href="/logout">← Logout</a>
+  <div class="sb-user">
+    <div class="av">{{ session.name[:2].upper() if session.name else 'U' }}</div>
+    <div>
+      <div style="font-size:0.82rem;font-weight:600;">{{ user.name }}</div>
+      <div style="font-size:0.62rem;color:var(--m);font-family:var(--fm);">{{ user.department }} · {{ user.role }}</div>
+    </div>
+  </div>
+</aside>
+ 
+<!-- MAIN -->
+<div class="main">
+  <div class="tb">
+    <div class="tb-t">My Security Dashboard</div>
+    <div class="tb-r">
+      <div class="status-ok"><div class="dot"></div>Monitoring Active</div>
+      <div class="clk" id="clock">--:--:--</div>
+      <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+  </div>
+ 
+  <div class="content">
+ 
+    <!-- WELCOME BANNER -->
+    <div class="welcome">
+      <div>
+        <h2>Welcome back, {{ user.name }} 👋</h2>
+        <p>{{ user.department }} · {{ user.role }} · Your activity is being monitored for security compliance.</p>
+      </div>
+      <div class="file-badge">
+        <div class="num">{{ user.baseline_files }}</div>
+        <div class="lbl">Files in Working Set<br>(Reference Baseline)</div>
+      </div>
+    </div>
+ 
+    <!-- KPIs -->
+    <div class="kpis">
+      <div class="kpi blue">
+        <div class="kl">Sessions Today</div>
+        <div class="kv blue">3</div>
+        <div class="ks">Normal activity range</div>
+      </div>
+      <div class="kpi {% if risk and risk.level == 'HIGH' %}red{% elif risk and risk.level == 'MEDIUM' %}yellow{% else %}green{% endif %}">
+        <div class="kl">Risk Level</div>
+        <div class="kv {% if risk and risk.level == 'HIGH' %}red{% elif risk and risk.level == 'MEDIUM' %}yellow{% else %}green{% endif %}">{{ risk.level if risk else 'N/A' }}</div>
+        <div class="ks">Score: {{ risk.score if risk else 0 }}/100</div>
+      </div>
+      <div class="kpi yellow">
+        <div class="kl">Alerts</div>
+        <div class="kv yellow">{{ my_alerts|length }}</div>
+        <div class="ks">Pending review</div>
+      </div>
+      <div class="kpi blue">
+        <div class="kl">Baseline Files</div>
+        <div class="kv blue">{{ user.baseline_files }}</div>
+        <div class="ks">Reference working set</div>
+      </div>
+    </div>
+ 
+    <!-- RISK CARD + GAUGE -->
+    {% set score = risk.score if risk else 0 %}
+    {% set level = risk.level if risk else 'LOW' %}
+    <div class="risk-card">
+      <div>
+        <div class="rc-label">Your Current Risk Score</div>
+        <div class="rc-score" style="color:{% if level=='HIGH' %}var(--danger){% elif level=='MEDIUM' %}var(--warn){% else %}var(--safe){% endif %}">
+          {{ score }} <span style="font-size:1.2rem;color:var(--m)">/100</span>
+        </div>
+        <div class="rc-level" style="color:{% if level=='HIGH' %}var(--danger){% elif level=='MEDIUM' %}var(--warn){% else %}var(--safe){% endif %}">
+          {% if level=='HIGH' %}🔴 HIGH RISK — Immediate investigation required
+          {% elif level=='MEDIUM' %}🟡 MEDIUM RISK — Unusual patterns detected
+          {% else %}🟢 LOW RISK — Behavior within normal baseline{% endif %}
+        </div>
+        <div class="factors">
+          <div class="frow"><span class="flabel">Login Pattern</span><div class="fbar"><div class="ffill" style="width:{% if level=='HIGH' %}72{% elif level=='MEDIUM' %}38{% else %}8{% endif %}%;background:{% if level=='HIGH' %}var(--danger){% elif level=='MEDIUM' %}var(--warn){% else %}var(--safe){% endif %};"></div></div><span class="fval">{% if level=='HIGH' %}72{% elif level=='MEDIUM' %}38{% else %}8{% endif %}%</span></div>
+          <div class="frow"><span class="flabel">File Access Rate</span><div class="fbar"><div class="ffill" style="width:{% if level=='HIGH' %}85{% elif level=='MEDIUM' %}45{% else %}15{% endif %}%;background:{% if level=='HIGH' %}var(--danger){% elif level=='MEDIUM' %}var(--warn){% else %}var(--safe){% endif %};"></div></div><span class="fval">{% if level=='HIGH' %}85{% elif level=='MEDIUM' %}45{% else %}15{% endif %}%</span></div>
+          <div class="frow"><span class="flabel">Off-Hours Activity</span><div class="fbar"><div class="ffill" style="width:{% if level=='HIGH' %}60{% elif level=='MEDIUM' %}20{% else %}3{% endif %}%;background:{% if level=='HIGH' %}var(--danger){% elif level=='MEDIUM' %}var(--warn){% else %}var(--safe){% endif %};"></div></div><span class="fval">{% if level=='HIGH' %}60{% elif level=='MEDIUM' %}20{% else %}3{% endif %}%</span></div>
+          <div class="frow"><span class="flabel">Device Anomaly</span><div class="fbar"><div class="ffill" style="width:{% if level=='HIGH' %}40{% else %}2{% endif %}%;background:{% if level=='HIGH' %}var(--danger){% else %}var(--safe){% endif %};"></div></div><span class="fval">{% if level=='HIGH' %}40{% else %}2{% endif %}%</span></div>
+        </div>
+      </div>
+      <div class="gauge-wrap">
+        <canvas id="gaugeChart"></canvas>
+        <div class="gauge-center">
+          <div class="gc-num" style="color:{% if level=='HIGH' %}var(--danger){% elif level=='MEDIUM' %}var(--warn){% else %}var(--safe){% endif %}">{{ score }}</div>
+          <div class="gc-txt">RISK SCORE</div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- CHARTS -->
+    <div class="g22">
+      <div class="card">
+        <div class="ct">Risk Score — Last 7 Days</div>
+        <div class="cs">Your behavioral risk trend</div>
+        <canvas id="riskChart"></canvas>
+      </div>
+      <div class="card">
+        <div class="ct">Activity Distribution</div>
+        <div class="cs">What actions you performed</div>
+        <canvas id="actChart"></canvas>
+      </div>
+    </div>
+ 
+    <!-- HEATMAP -->
+    <div class="card">
+      <div class="ct">Hourly Activity Heatmap</div>
+      <div class="cs">Login and access events by hour — unusual hours are flagged automatically</div>
+      <div class="hm" id="heatmap"></div>
+      <div class="hm-labels"><span>00h</span><span>06h</span><span>12h</span><span>18h</span><span>23h</span></div>
+    </div>
+ 
+    <!-- ACTIVITY TABLE + ALERTS -->
+    <div class="g2">
+      <div class="card">
+        <div class="ct">Recent Activity Log</div>
+        <div class="cs">Time | Action | Resource | Status</div>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Time</th><th>Action</th><th>Resource</th><th>Files</th><th>IP</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for log in recent_logs %}
+            <tr>
+              <td class="mono">{{ log.timestamp[11:16] }}</td>
+              <td class="mono">{{ log.action }}</td>
+              <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.72rem;color:var(--m)">{{ log.resource or '—' }}</td>
+              <td class="mono">{{ log.files_accessed }}</td>
+              <td class="mono" style="font-size:0.65rem;color:var(--m)">{{ log.ip_address[:12] if log.ip_address else '—' }}</td>
+              <td>
+                {% if log.status == 'suspicious' %}
+                  <span class="sc ss">⚠ Suspicious</span>
+                {% elif log.status == 'failed' %}
+                  <span class="sc sf">✗ Failed</span>
+                {% else %}
+                  <span class="sc sn">✓ Normal</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" style="text-align:center;color:var(--m);padding:20px;">No recent activity</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+ 
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="card">
+          <div class="ct">🔔 Security Notifications</div>
+          <div class="cs">Active alerts requiring your attention</div>
+          <div class="alert-list">
+            {% for a in my_alerts %}
+            <div class="alert-item {{ a.severity.lower() }}">
+              <div class="ah">
+                <span class="at">{{ a.alert_type.replace('_',' ').title() }}</span>
+                <span class="ab {% if a.severity=='HIGH' %}bh{% elif a.severity=='MEDIUM' %}bm{% else %}bl{% endif %}">{{ a.severity }}</span>
+              </div>
+              <div class="ad">{{ a.message[:100] }}...</div>
+            </div>
+            {% else %}
+            <div style="text-align:center;color:var(--safe);padding:20px;font-family:var(--fm);font-size:0.75rem;">✓ No active alerts</div>
+            {% endfor %}
+          </div>
+        </div>
+ 
+        <div class="sim-panel">
+          <div class="sim-title">⚙ Demo Simulator — Trigger Events</div>
+          <div class="sim-btns">
+            <button class="sim-btn" onclick="simulate('bulk_access')">📂 Bulk File Access</button>
+            <button class="sim-btn" onclick="simulate('off_hours')">🌙 Off-Hours Login</button>
+            <button class="sim-btn" onclick="simulate('failed_login')">🔒 Failed Logins ×12</button>
+          </div>
+          <div class="sim-result" id="sim-result">✓ Event simulated! Run detection in Admin panel to see result.</div>
+        </div>
+      </div>
+    </div>
+ 
+  </div><!-- /content -->
+</div><!-- /main -->
+ 
+<script>
+// CLOCK
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-IN');},1000);
+ 
+// GAUGE
+const scoreVal = {{ score }};
+const scoreColor = "{% if level=='HIGH' %}#ef4444{% elif level=='MEDIUM' %}#f59e0b{% else %}#10b981{% endif %}";
+const gCtx = document.getElementById('gaugeChart').getContext('2d');
+new Chart(gCtx,{type:'doughnut',data:{datasets:[{data:[scoreVal,100-scoreVal],backgroundColor:[scoreColor,'rgba(255,255,255,0.04)'],borderWidth:0,circumference:240,rotation:240}]},options:{cutout:'80%',plugins:{legend:{display:false},tooltip:{enabled:false}},responsive:true,maintainAspectRatio:true}});
+ 
+// RISK TREND
+const days=['Mon','Tue','Wed','Thu','Fri','Sat','Today'];
+{% if level=='HIGH' %}
+const scores=[45,52,60,70,78,82,{{ score }}];
+{% elif level=='MEDIUM' %}
+const scores=[22,30,35,40,48,50,{{ score }}];
+{% else %}
+const scores=[18,15,12,14,10,13,{{ score }}];
+{% endif %}
+new Chart(document.getElementById('riskChart').getContext('2d'),{type:'line',data:{labels:days,datasets:[{data:scores,borderColor:scoreColor,backgroundColor:scoreColor.replace(')',',0.1)').replace('rgb','rgba'),tension:0.4,fill:true,pointBackgroundColor:scoreColor,pointRadius:3,borderWidth:2}]},options:{plugins:{legend:{display:false}},scales:{y:{min:0,max:100,grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#475569',font:{family:'DM Mono',size:9}}},x:{grid:{display:false},ticks:{color:'#475569',font:{family:'DM Mono',size:9}}}}}});
+ 
+// ACTIVITY DONUT
+new Chart(document.getElementById('actChart').getContext('2d'),{type:'doughnut',data:{labels:['File Read','Login','Download','Email','System','Other'],datasets:[{data:[38,22,16,12,8,4],backgroundColor:['#3b82f6','#06b6d4','#10b981','#f59e0b','#8b5cf6','#475569'],borderWidth:0}]},options:{cutout:'65%',plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{family:'DM Mono',size:9},padding:6}}}}});
+ 
+// HEATMAP
+const hm=document.getElementById('heatmap');
+{% if level=='HIGH' %}
+const acts=[0,0,2,5,8,3,1,1,3,6,8,7,9,8,7,6,5,4,6,7,8,9,8,5];
+{% elif level=='MEDIUM' %}
+const acts=[0,0,0,0,0,0,1,2,6,7,8,6,7,6,5,4,3,3,2,1,0,0,0,0];
+{% else %}
+const acts=[0,0,0,0,0,0,0,1,7,8,9,8,7,8,7,6,5,4,2,1,0,0,0,0];
+{% endif %}
+acts.forEach((v,i)=>{
+  const c=document.createElement('div');
+  c.className='hmc';
+  c.style.background=v===0?'rgba(255,255,255,0.03)':`rgba(59,130,246,${0.1+v/10*0.9})`;
+  if({% if level=='HIGH' %}i<6||i>20{% else %}false{% endif %}){c.style.background=`rgba(239,68,68,${0.2+v/10*0.7})`;}
+  c.title=`${String(i).padStart(2,'0')}:00 — ${v} events`;
+  hm.appendChild(c);
+});
+ 
+// SIMULATE
+function simulate(type){
+  const uid='{{ user.user_id }}';
+  fetch(`/api/simulate-event/${uid}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type})})
+  .then(r=>r.json()).then(d=>{
+    const el=document.getElementById('sim-result');
+    el.style.display='block';
+    el.textContent='✓ "'+type+'" event simulated! Ask Admin to run detection.';
+    setTimeout(()=>{el.style.display='none';},4000);
+  });
+}
+</script>
+</body>
+</html>
+ 

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Insider Threat Level Detection System — System Audit Logs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#03060f;--s1:#080e1c;--s2:#0f1729;--s3:#161f33;--b:rgba(99,179,237,0.09);--ac:#3b82f6;--ac2:#06b6d4;--danger:#ef4444;--warn:#f59e0b;--safe:#10b981;--pur:#8b5cf6;--text:#e2e8f0;--m:#475569;--fh:'Syne',sans-serif;--fm:'DM Mono',monospace;--fb:'Instrument Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);display:flex;min-height:100vh;font-size:13px;}
+ 
+/* Sidebar (reused) */
+.sb{width:210px;background:var(--s1);border-right:1px solid var(--b);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;}
+.sb-brand{padding:18px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:9px;}
+.lb{width:28px;height:28px;background:linear-gradient(135deg,var(--danger),#f97316);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.8rem;}
+.bn{font-family:var(--fh);font-weight:800;font-size:0.9rem;}
+.bs{font-size:0.58rem;color:var(--m);font-family:var(--fm);}
+.sec{padding:12px 10px 4px;font-family:var(--fm);font-size:0.58rem;color:var(--m);letter-spacing:0.12em;text-transform:uppercase;}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:7px;margin:1px 7px;color:var(--m);font-size:0.78rem;text-decoration:none;transition:all 0.2s;}
+.ni:hover{background:rgba(255,255,255,0.04);color:var(--text);}
+.ni.active{background:rgba(139,92,246,0.12);color:#c4b5fd;}
+.sb-admin{padding:12px;border-top:1px solid var(--b);margin-top:auto;display:flex;align-items:center;gap:9px;}
+.aav{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--danger),#f97316);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;}
+ 
+/* MAIN */
+.main{margin-left:210px;flex:1;display:flex;flex-direction:column;}
+.tb{background:var(--s1);border-bottom:1px solid var(--b);padding:11px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
+.tb-t{font-family:var(--fh);font-size:0.95rem;font-weight:700;}
+.tb-r{display:flex;align-items:center;gap:10px;}
+.clk{font-family:var(--fm);font-size:0.68rem;color:var(--m);}
+.btn{padding:6px 14px;border-radius:6px;font-size:0.72rem;font-weight:600;cursor:pointer;text-decoration:none;font-family:var(--fb);transition:all 0.2s;border:none;}
+.btn-blue{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:var(--ac);}
+.btn-blue:hover{background:rgba(59,130,246,0.25);}
+.btn-green{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--safe);}
+.btn-green:hover{background:rgba(16,185,129,0.25);}
+.logout-btn{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.18);color:#fca5a5;font-size:0.68rem;padding:5px 10px;border-radius:5px;text-decoration:none;font-family:var(--fm);}
+ 
+/* CONTENT */
+.content{padding:18px 24px;display:flex;flex-direction:column;gap:16px;}
+ 
+/* FILTER BAR */
+.filter-bar{background:var(--s1);border:1px solid var(--b);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.filter-label{font-family:var(--fm);font-size:0.65rem;color:var(--m);text-transform:uppercase;letter-spacing:0.08em;}
+.filter-select{background:var(--s2);border:1px solid var(--b);border-radius:6px;padding:6px 12px;color:var(--text);font-family:var(--fm);font-size:0.72rem;outline:none;cursor:pointer;}
+.filter-select:focus{border-color:var(--ac);}
+.filter-input{background:var(--s2);border:1px solid var(--b);border-radius:6px;padding:6px 12px;color:var(--text);font-family:var(--fm);font-size:0.72rem;outline:none;width:180px;}
+.filter-input:focus{border-color:var(--ac);}
+.filter-input::placeholder{color:var(--m);}
+.filter-sep{width:1px;height:24px;background:var(--b);}
+.filter-count{font-family:var(--fm);font-size:0.68rem;color:var(--m);margin-left:auto;}
+ 
+/* SUMMARY CARDS */
+.sum-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+.sum{background:var(--s1);border:1px solid var(--b);border-radius:10px;padding:14px;}
+.sum-label{font-family:var(--fm);font-size:0.6rem;color:var(--m);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+.sum-val{font-family:var(--fh);font-size:1.4rem;font-weight:800;}
+ 
+/* LOG TABLE */
+.log-card{background:var(--s1);border:1px solid var(--b);border-radius:12px;overflow:hidden;}
+.log-header{padding:14px 18px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;}
+.log-title{font-family:var(--fh);font-size:0.88rem;font-weight:700;}
+.log-sub{font-size:0.68rem;color:var(--m);}
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{font-family:var(--fm);font-size:0.58rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--m);padding:8px 12px;border-bottom:1px solid var(--b);text-align:left;white-space:nowrap;background:var(--s2);}
+td{font-size:0.75rem;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.02);vertical-align:middle;}
+tr:hover td{background:rgba(255,255,255,0.015);}
+.mono{font-family:var(--fm);font-size:0.67rem;}
+ 
+/* STATUS CHIPS */
+.sc{display:inline-flex;align-items:center;gap:3px;font-family:var(--fm);font-size:0.6rem;padding:2px 7px;border-radius:3px;white-space:nowrap;}
+.sn{background:rgba(16,185,129,0.12);color:#6ee7b7;}
+.ss{background:rgba(239,68,68,0.12);color:#fca5a5;}
+.sf{background:rgba(245,158,11,0.12);color:#fcd34d;}
+.si{background:rgba(59,130,246,0.12);color:#93c5fd;}
+ 
+/* ACTION CHIPS */
+.ac-chip{display:inline-flex;font-family:var(--fm);font-size:0.62rem;padding:2px 7px;border-radius:3px;}
+.ac-read{background:rgba(59,130,246,0.08);color:#93c5fd;}
+.ac-write{background:rgba(139,92,246,0.1);color:#c4b5fd;}
+.ac-login{background:rgba(16,185,129,0.08);color:#6ee7b7;}
+.ac-dl{background:rgba(245,158,11,0.1);color:#fcd34d;}
+.ac-fail{background:rgba(239,68,68,0.1);color:#fca5a5;}
+.ac-sys{background:rgba(6,182,212,0.08);color:#67e8f9;}
+ 
+/* RISK PILL */
+.rp{display:inline-flex;font-family:var(--fm);font-size:0.6rem;padding:2px 6px;border-radius:3px;}
+.rph{background:rgba(239,68,68,0.15);color:#fca5a5;}
+.rpm{background:rgba(245,158,11,0.15);color:#fcd34d;}
+.rpl{background:rgba(16,185,129,0.15);color:#6ee7b7;}
+ 
+/* PAGINATION */
+.pager{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--b);}
+.pager-info{font-family:var(--fm);font-size:0.67rem;color:var(--m);}
+.pager-btns{display:flex;gap:4px;}
+.pb{background:var(--s2);border:1px solid var(--b);color:var(--m);font-family:var(--fm);font-size:0.67rem;padding:4px 10px;border-radius:5px;cursor:pointer;transition:all 0.2s;}
+.pb:hover,.pb.act{border-color:var(--ac);color:var(--ac);}
+.pb:disabled{opacity:0.3;cursor:default;}
+ 
+/* EXPORT MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.overlay.open{display:flex;}
+.modal{background:var(--s1);border:1px solid var(--b);border-radius:14px;width:440px;max-width:95vw;padding:26px;}
+.modal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.modal-title{font-family:var(--fh);font-size:1rem;font-weight:800;}
+.modal-close{background:rgba(255,255,255,0.06);border:none;color:var(--text);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:0.9rem;}
+.form-field{margin-bottom:14px;}
+label{display:block;font-family:var(--fm);font-size:0.62rem;color:var(--m);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;}
+select,input{width:100%;background:var(--s2);border:1px solid var(--b);border-radius:6px;padding:9px 12px;color:var(--text);font-family:var(--fm);font-size:0.75rem;outline:none;}
+select:focus,input:focus{border-color:var(--ac);}
+.modal-btns{display:flex;gap:8px;margin-top:18px;}
+.mbtn{flex:1;padding:10px;border-radius:7px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:var(--fb);border:none;transition:all 0.2s;}
+.mbtn-primary{background:var(--safe);color:#020509;}
+.mbtn-primary:hover{background:#059669;}
+.mbtn-ghost{background:rgba(255,255,255,0.06);color:var(--text);}
+.mbtn-ghost:hover{background:rgba(255,255,255,0.1);}
+ 
+@media(max-width:700px){.sb{display:none;}.main{margin-left:0;}.sum-row{grid-template-columns:repeat(2,1fr);}}</style>
+</head>
+<body>
+ 
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-brand">
+    <div class="lb">🛡️</div>
+    <div><div class="bn">Insider Threat<span style="color:var(--danger)"> Detection</span></div><div class="bs">ADMIN · SOC</div></div>
+  </div>
+  <div class="sec">Overview</div>
+  <a class="ni" href="/admin">🏠 Dashboard</a>
+  <a class="ni" href="/admin">🚨 Alerts</a>
+  <a class="ni" href="/admin">📊 Analytics</a>
+  <div class="sec">Users</div>
+  <a class="ni" href="/admin">👥 All Users</a>
+  <a class="ni" href="/admin">⚠️ High Risk</a>
+  <a class="ni active" href="/audit-logs">📋 Audit Logs</a>
+  <a class="ni" href="/admin">🔑 Access Control</a>
+  <div class="sec">Reports</div>
+  <a class="ni" href="/admin">📄 PDF Reports</a>
+  <a class="ni" href="/admin">⚙️ Config</a>
+  <a class="ni" href="/logout">← Logout</a>
+  <div class="sb-admin">
+    <div class="aav">AK</div>
+    <div>
+      <div style="font-size:0.78rem;font-weight:600;">Admin Kumar</div>
+      <div style="font-size:0.6rem;color:var(--m);font-family:var(--fm);">SECURITY_ADMIN</div>
+    </div>
+  </div>
+</aside>
+ 
+<!-- MAIN -->
+<div class="main">
+  <div class="tb">
+    <div class="tb-t">📋 System Audit Logs</div>
+    <div class="tb-r">
+      <div class="clk" id="clock">--:--:--</div>
+      <button class="btn btn-blue" onclick="refreshLogs()">↻ Refresh</button>
+      <button class="btn btn-green" onclick="document.getElementById('exportModal').classList.add('open')">⬇ Export CSV</button>
+      <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+  </div>
+ 
+  <div class="content">
+ 
+    <!-- SUMMARY CARDS -->
+    <div class="sum-row" id="sum-row">
+      <div class="sum"><div class="sum-label">Total Events</div><div class="sum-val" style="color:var(--ac2)" id="s-total">—</div></div>
+      <div class="sum"><div class="sum-label">Suspicious</div><div class="sum-val" style="color:var(--danger)" id="s-suspicious">—</div></div>
+      <div class="sum"><div class="sum-label">Failed Logins</div><div class="sum-val" style="color:var(--warn)" id="s-failed">—</div></div>
+      <div class="sum"><div class="sum-label">Unique Users</div><div class="sum-val" style="color:var(--safe)" id="s-users">—</div></div>
+      <div class="sum"><div class="sum-label">Normal</div><div class="sum-val" style="color:var(--m)" id="s-normal">—</div></div>
+    </div>
+ 
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <div class="filter-label">Filter:</div>
+      <select class="filter-select" id="f-user" onchange="applyFilters()">
+        <option value="">All Users</option>
+      </select>
+      <select class="filter-select" id="f-action" onchange="applyFilters()">
+        <option value="">All Actions</option>
+        <option>LOGIN</option><option>LOGIN_FAILED</option><option>FILE_READ</option>
+        <option>FILE_DOWNLOAD</option><option>FILE_WRITE</option><option>BULK_FILE_ACCESS</option>
+        <option>USB_WRITE</option><option>EMAIL_SENT</option><option>DB_QUERY</option>
+        <option>SYSTEM_ACCESS</option>
+      </select>
+      <select class="filter-select" id="f-status" onchange="applyFilters()">
+        <option value="">All Statuses</option>
+        <option>normal</option><option>suspicious</option><option>failed</option>
+      </select>
+      <div class="filter-sep"></div>
+      <input class="filter-input" id="f-search" placeholder="Search resource / IP..." oninput="applyFilters()">
+      <span class="filter-count" id="filter-count">Loading...</span>
+    </div>
+ 
+    <!-- LOG TABLE -->
+    <div class="log-card">
+      <div class="log-header">
+        <div>
+          <div class="log-title">Complete Activity Log</div>
+          <div class="log-sub">All monitored events across all users — newest first</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-blue" onclick="sortBy('timestamp')">Sort: Time</button>
+          <button class="btn btn-blue" onclick="sortBy('files_accessed')">Sort: Files</button>
+        </div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Timestamp</th>
+              <th>User ID</th>
+              <th>Action</th>
+              <th>Resource</th>
+              <th>Files</th>
+              <th>IP Address</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="log-tbody">
+            <tr><td colspan="8" style="text-align:center;color:var(--m);padding:32px;font-family:var(--fm)">Loading logs...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <div class="pager-info" id="pager-info">—</div>
+        <div class="pager-btns" id="pager-btns"></div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- EXPORT MODAL -->
+<div class="overlay" id="exportModal">
+  <div class="modal">
+    <div class="modal-h">
+      <div class="modal-title">⬇ Export Audit Logs</div>
+      <button class="modal-close" onclick="document.getElementById('exportModal').classList.remove('open')">✕</button>
+    </div>
+    <div class="form-field">
+      <label>User Filter</label>
+      <select id="exp-user"><option value="">All Users</option></select>
+    </div>
+    <div class="form-field">
+      <label>Status Filter</label>
+      <select id="exp-status">
+        <option value="">All Statuses</option>
+        <option>normal</option><option>suspicious</option><option>failed</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Date Range (days back)</label>
+      <input type="number" id="exp-days" value="30" min="1" max="365">
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-primary" onclick="exportCSV()">⬇ Download CSV</button>
+      <button class="mbtn mbtn-ghost" onclick="document.getElementById('exportModal').classList.remove('open')">Cancel</button>
+    </div>
+  </div>
+</div>
+ 
+<script>
+// CLOCK
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-IN');},1000);
+ 
+let allLogs = [];
+let filtered = [];
+let currentPage = 1;
+const perPage = 25;
+let sortField = 'timestamp';
+let sortAsc = false;
+ 
+// ACTION CHIP STYLES
+function actionChip(action) {
+  const map = {
+    'LOGIN': 'ac-login', 'LOGIN_FAILED': 'ac-fail', 'FILE_READ': 'ac-read',
+    'FILE_DOWNLOAD': 'ac-dl', 'FILE_WRITE': 'ac-write',
+    'BULK_FILE_ACCESS': 'ac-fail', 'USB_WRITE': 'ac-fail',
+    'EMAIL_SENT': 'ac-dl', 'DB_QUERY': 'ac-sys', 'SYSTEM_ACCESS': 'ac-sys'
+  };
+  const cls = map[action] || 'ac-sys';
+  return `<span class="ac-chip ${cls}">${action}</span>`;
+}
+function statusChip(s) {
+  if(s==='suspicious') return `<span class="sc ss">⚠ Suspicious</span>`;
+  if(s==='failed')     return `<span class="sc sf">✗ Failed</span>`;
+  return `<span class="sc sn">✓ Normal</span>`;
+}
+ 
+async function loadLogs() {
+  try {
+    const res = await fetch('/api/all-logs');
+    allLogs = await res.json();
+    populateUserFilters();
+    applyFilters();
+    updateSummary();
+  } catch(e) {
+    document.getElementById('log-tbody').innerHTML =
+      `<tr><td colspan="8" style="text-align:center;color:var(--m);padding:32px;font-family:var(--fm)">Could not load logs. Make sure Flask server is running.</td></tr>`;
+    document.getElementById('filter-count').textContent = '0 events';
+  }
+}
+ 
+function populateUserFilters() {
+  const users = [...new Set(allLogs.map(l => l.user_id))].sort();
+  [document.getElementById('f-user'), document.getElementById('exp-user')].forEach(sel => {
+    users.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u; opt.textContent = u;
+      sel.appendChild(opt);
+    });
+  });
+}
+ 
+function updateSummary() {
+  const total = allLogs.length;
+  const susp = allLogs.filter(l => l.status === 'suspicious').length;
+  const failed = allLogs.filter(l => l.status === 'failed').length;
+  const users = new Set(allLogs.map(l => l.user_id)).size;
+  const normal = allLogs.filter(l => l.status === 'normal').length;
+  document.getElementById('s-total').textContent = total.toLocaleString();
+  document.getElementById('s-suspicious').textContent = susp;
+  document.getElementById('s-failed').textContent = failed;
+  document.getElementById('s-users').textContent = users;
+  document.getElementById('s-normal').textContent = normal.toLocaleString();
+}
+ 
+function applyFilters() {
+  const user   = document.getElementById('f-user').value;
+  const action = document.getElementById('f-action').value;
+  const status = document.getElementById('f-status').value;
+  const search = document.getElementById('f-search').value.toLowerCase();
+ 
+  filtered = allLogs.filter(l => {
+    if(user   && l.user_id !== user)     return false;
+    if(action && l.action  !== action)   return false;
+    if(status && l.status  !== status)   return false;
+    if(search && !`${l.resource||''} ${l.ip_address||''}`.toLowerCase().includes(search)) return false;
+    return true;
+  });
+ 
+  // Sort
+  filtered.sort((a,b) => {
+    let va = a[sortField] || '', vb = b[sortField] || '';
+    if(sortField === 'files_accessed'){ va = +va; vb = +vb; }
+    if(va < vb) return sortAsc ? -1 : 1;
+    if(va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+ 
+  document.getElementById('filter-count').textContent = `${filtered.length} events`;
+  currentPage = 1;
+  renderPage();
+}
+ 
+function sortBy(field) {
+  if(sortField === field) sortAsc = !sortAsc;
+  else { sortField = field; sortAsc = false; }
+  applyFilters();
+}
+ 
+function renderPage() {
+  const start = (currentPage - 1) * perPage;
+  const page  = filtered.slice(start, start + perPage);
+  const tbody = document.getElementById('log-tbody');
+ 
+  if(!page.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--m);padding:24px;font-family:var(--fm)">No events match current filters</td></tr>`;
+    document.getElementById('pager-info').textContent = '0 results';
+    document.getElementById('pager-btns').innerHTML = '';
+    return;
+  }
+ 
+  tbody.innerHTML = page.map((l, i) => `
+    <tr>
+      <td class="mono" style="color:var(--m)">${start + i + 1}</td>
+      <td class="mono">${(l.timestamp||'').substring(0,19)}</td>
+      <td class="mono" style="color:${l.status==='suspicious'?'var(--danger)':l.status==='failed'?'var(--warn)':'var(--ac2)'}">${l.user_id}</td>
+      <td>${actionChip(l.action)}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.7rem;color:var(--m)" title="${l.resource||''}">${l.resource||'—'}</td>
+      <td class="mono" style="color:${l.files_accessed>100?'var(--danger)':l.files_accessed>50?'var(--warn)':'var(--text)'}">${l.files_accessed||0}</td>
+      <td class="mono" style="font-size:0.65rem;color:var(--m)">${(l.ip_address||'—').substring(0,18)}</td>
+      <td>${statusChip(l.status)}</td>
+    </tr>`).join('');
+ 
+  // Pager
+  const totalPages = Math.ceil(filtered.length / perPage);
+  document.getElementById('pager-info').textContent =
+    `Showing ${start+1}–${Math.min(start+perPage, filtered.length)} of ${filtered.length}`;
+ 
+  const pager = document.getElementById('pager-btns');
+  pager.innerHTML = '';
+  const addPb = (label, page, disabled=false, active=false) => {
+    const b = document.createElement('button');
+    b.className = `pb${active?' act':''}`;
+    b.textContent = label;
+    b.disabled = disabled;
+    b.onclick = () => { currentPage = page; renderPage(); };
+    pager.appendChild(b);
+  };
+  addPb('←', currentPage-1, currentPage===1);
+  const start2 = Math.max(1, currentPage-2), end2 = Math.min(totalPages, currentPage+2);
+  for(let p=start2;p<=end2;p++) addPb(p, p, false, p===currentPage);
+  addPb('→', currentPage+1, currentPage===totalPages);
+}
+ 
+function refreshLogs() { loadLogs(); }
+ 
+function exportCSV() {
+  const user   = document.getElementById('exp-user').value;
+  const status = document.getElementById('exp-status').value;
+  let rows = allLogs.filter(l => {
+    if(user   && l.user_id !== user)   return false;
+    if(status && l.status  !== status) return false;
+    return true;
+  });
+ 
+  const cols = ['id','timestamp','user_id','action','resource','files_accessed','ip_address','status'];
+  const csv  = [cols.join(','),
+    ...rows.map(r => cols.map(c => `"${(r[c]||'').toString().replace(/"/g,'""')}"`).join(','))
+  ].join('\n');
+ 
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = `threatguard_audit_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  document.getElementById('exportModal').classList.remove('open');
+}
+ 
+loadLogs();
+</script>
+</body>
+</html>

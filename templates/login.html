@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Insider Threat Level Detection System — Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#03060f;--surface:#080e1c;--border:rgba(99,179,237,0.1);--accent:#3b82f6;--accent2:#06b6d4;--danger:#ef4444;--safe:#10b981;--text:#e2e8f0;--muted:#475569;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Instrument Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+ 
+/* BG GRID */
+.bg{position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px);background-size:50px 50px;}
+.glow{position:fixed;top:20%;left:50%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(59,130,246,0.1),transparent 65%);pointer-events:none;}
+ 
+/* CARD */
+.card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:44px 48px;width:420px;max-width:95vw;box-shadow:0 40px 80px rgba(0,0,0,0.5);}
+.card::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+ 
+.logo{display:flex;align-items:center;gap:12px;margin-bottom:32px;justify-content:center;}
+.logo-box{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.logo-name{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;}
+ 
+h2{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;text-align:center;margin-bottom:6px;}
+.sub{font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:28px;font-family:'DM Mono',monospace;}
+ 
+.field{margin-bottom:16px;}
+label{display:block;font-size:0.75rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+input{width:100%;background:#0b1020;border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-size:0.9rem;font-family:'Instrument Sans',sans-serif;outline:none;transition:border-color 0.2s;}
+input:focus{border-color:var(--accent);}
+ 
+.btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),#2563eb);border:none;border-radius:8px;color:white;font-size:0.95rem;font-weight:600;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all 0.2s;margin-top:8px;}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(59,130,246,0.35);}
+ 
+.error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;font-size:0.82rem;color:#fca5a5;text-align:center;margin-bottom:16px;font-family:'DM Mono',monospace;}
+ 
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
+.divider hr{flex:1;border:none;border-top:1px solid var(--border);}
+.divider span{font-size:0.7rem;color:var(--muted);font-family:'DM Mono',monospace;}
+ 
+/* DEMO PILLS */
+.demo-section{display:flex;flex-direction:column;gap:8px;}
+.demo-title{font-size:0.7rem;color:var(--muted);font-family:'DM Mono',monospace;text-align:center;margin-bottom:4px;}
+.demo-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.demo-btn{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;cursor:pointer;transition:all 0.2s;text-decoration:none;display:block;}
+.demo-btn:hover{border-color:var(--accent);background:rgba(59,130,246,0.08);}
+.demo-btn .role{font-size:0.7rem;color:var(--muted);font-family:'DM Mono',monospace;display:block;}
+.demo-btn .creds{font-size:0.78rem;color:var(--text);font-weight:600;display:block;margin-top:2px;}
+.demo-btn.admin-btn{border-color:rgba(239,68,68,0.3);}
+.demo-btn.admin-btn:hover{border-color:var(--danger);background:rgba(239,68,68,0.08);}
+ 
+/* FEATURE CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:24px;}
+.chip{font-family:'DM Mono',monospace;font-size:0.65rem;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.15);padding:3px 10px;border-radius:100px;color:var(--accent2);}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="glow"></div>
+ 
+<div class="card">
+  <div class="logo">
+    <div class="logo-box">🛡️</div>
+    <div class="logo-name">ThreatGuard<span style="color:var(--accent)">AI</span></div>
+  </div>
+ 
+  <h2>Secure Sign In</h2>
+  <div class="sub">Behavioral Insider Threat Detection System</div>
+ 
+  {% if error %}
+  <div class="error">⚠ {{ error }}</div>
+  {% endif %}
+ 
+  <form method="POST" action="/login">
+    <div class="field">
+      <label>User ID</label>
+      <input type="text" name="user_id" placeholder="e.g. EMP_001 or admin_01" required autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Enter your password" required>
+    </div>
+    <button type="submit" class="btn">→ Sign In</button>
+  </form>
+ 
+  <div class="divider"><hr><span>DEMO ACCESS</span><hr></div>
+ 
+  <div class="demo-section">
+    <div class="demo-title">Click to auto-fill credentials</div>
+    <div class="demo-row">
+      <div class="demo-btn admin-btn" onclick="fill('admin_01','admin123')">
+        <span class="role">🛡️ Administrator</span>
+        <span class="creds">admin_01 / admin123</span>
+      </div>
+      <div class="demo-btn" onclick="fill('EMP_001','pass123')">
+        <span class="role">👤 Normal User</span>
+        <span class="creds">EMP_001 / pass123</span>
+      </div>
+      <div class="demo-btn" onclick="fill('EMP_006','pass123')" style="border-color:rgba(239,68,68,0.25)">
+        <span class="role">⚠ High Risk User</span>
+        <span class="creds">EMP_006 / pass123</span>
+      </div>
+      <div class="demo-btn" onclick="fill('EMP_005','pass123')" style="border-color:rgba(245,158,11,0.25)">
+        <span class="role">🟡 Medium Risk</span>
+        <span class="creds">EMP_005 / pass123</span>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="chips">
+    <span class="chip">Isolation Forest</span>
+    <span class="chip">LSTM Autoencoder</span>
+    <span class="chip">UEBA</span>
+    <span class="chip">XAI</span>
+  </div>
+</div>
+ 
+<script>
+function fill(uid, pw) {
+  document.querySelector('[name="user_id"]').value = uid;
+  document.querySelector('[name="password"]').value = pw;
+}
+</script>
+</body>
+</html>

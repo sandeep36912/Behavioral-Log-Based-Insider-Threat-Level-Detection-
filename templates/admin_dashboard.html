@@ -1,0 +1,510 @@
+Admin dashboard · HTML
+Copy
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Insider Threat Level Detection System — Admin SOC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#03060f;--s1:#080e1c;--s2:#0f1729;--s3:#161f33;--b:rgba(99,179,237,0.09);--ac:#3b82f6;--ac2:#06b6d4;--danger:#ef4444;--warn:#f59e0b;--safe:#10b981;--pur:#8b5cf6;--text:#e2e8f0;--m:#475569;--fh:'Syne',sans-serif;--fm:'DM Mono',monospace;--fb:'Instrument Sans',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);display:flex;min-height:100vh;font-size:13px;}
+ 
+/* SIDEBAR */
+.sb{width:210px;background:var(--s1);border-right:1px solid var(--b);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;}
+.sb-brand{padding:18px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:9px;}
+.lb{width:28px;height:28px;background:linear-gradient(135deg,var(--danger),#f97316);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.8rem;}
+.bn{font-family:var(--fh);font-weight:800;font-size:0.9rem;}
+.bs{font-size:0.58rem;color:var(--m);font-family:var(--fm);letter-spacing:0.08em;}
+.sec{padding:12px 10px 4px;font-family:var(--fm);font-size:0.58rem;color:var(--m);letter-spacing:0.12em;text-transform:uppercase;}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:7px;margin:1px 7px;cursor:pointer;color:var(--m);font-size:0.78rem;text-decoration:none;transition:all 0.2s;}
+.ni:hover{background:rgba(255,255,255,0.04);color:var(--text);}
+.ni.active{background:rgba(239,68,68,0.1);color:#fca5a5;}
+.nb{margin-left:auto;background:var(--danger);color:white;font-size:0.58rem;padding:1px 5px;border-radius:3px;font-family:var(--fm);}
+.sb-admin{padding:12px;border-top:1px solid var(--b);margin-top:auto;display:flex;align-items:center;gap:9px;}
+.aav{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--danger),#f97316);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;}
+ 
+/* MAIN */
+.main{margin-left:210px;flex:1;display:flex;flex-direction:column;}
+.tb{background:var(--s1);border-bottom:1px solid var(--b);padding:11px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
+.tb-l{display:flex;align-items:center;gap:14px;}
+.tb-t{font-family:var(--fh);font-size:0.95rem;font-weight:700;}
+.tl{display:flex;align-items:center;gap:5px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.22);padding:4px 10px;border-radius:5px;font-size:0.67rem;font-family:var(--fm);color:#fca5a5;}
+.p{width:5px;height:5px;border-radius:50%;background:var(--danger);animation:pl 1.4s infinite;}
+@keyframes pl{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.7)}}
+.tb-r{display:flex;align-items:center;gap:10px;}
+.clk{font-family:var(--fm);font-size:0.68rem;color:var(--m);}
+.run-btn{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:var(--ac);font-size:0.72rem;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:var(--fb);transition:all 0.2s;}
+.run-btn:hover{background:rgba(59,130,246,0.25);}
+.run-btn.running{background:rgba(16,185,129,0.15);color:var(--safe);border-color:rgba(16,185,129,0.3);}
+.logout-btn{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.18);color:#fca5a5;font-size:0.68rem;padding:5px 10px;border-radius:5px;text-decoration:none;font-family:var(--fm);}
+ 
+/* CONTENT */
+.content{padding:18px 24px;display:flex;flex-direction:column;gap:16px;}
+ 
+/* KPI ROW */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+.kpi{background:var(--s1);border:1px solid var(--b);border-radius:11px;padding:16px;position:relative;overflow:hidden;}
+.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.kpi.red::after{background:var(--danger);}
+.kpi.yellow::after{background:var(--warn);}
+.kpi.blue::after{background:var(--ac);}
+.kpi.green::after{background:var(--safe);}
+.kpi.pur::after{background:var(--pur);}
+.kl{font-family:var(--fm);font-size:0.59rem;color:var(--m);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px;}
+.kv{font-family:var(--fh);font-size:1.65rem;font-weight:800;}
+.kv.red{color:var(--danger);}.kv.yellow{color:var(--warn);}.kv.blue{color:var(--ac2);}.kv.green{color:var(--safe);}.kv.pur{color:var(--pur);}
+.kt{font-size:0.67rem;color:var(--m);margin-top:3px;}
+.tup{color:var(--danger);}.tdown{color:var(--safe);}
+ 
+/* GRIDS */
+.g3{display:grid;grid-template-columns:1.8fr 1fr;gap:16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g23{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
+.card{background:var(--s1);border:1px solid var(--b);border-radius:12px;padding:18px;}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.ct{font-family:var(--fh);font-size:0.88rem;font-weight:700;}
+.cs{font-size:0.68rem;color:var(--m);margin-top:1px;}
+.ca{font-size:0.67rem;color:var(--ac);cursor:pointer;font-family:var(--fm);}
+canvas{max-height:190px;}
+ 
+/* USER TABLE */
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{font-family:var(--fm);font-size:0.58rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--m);padding:6px 9px;border-bottom:1px solid var(--b);text-align:left;white-space:nowrap;}
+td{font-size:0.75rem;padding:8px 9px;border-bottom:1px solid rgba(255,255,255,0.02);vertical-align:middle;}
+tr:hover td{background:rgba(255,255,255,0.015);}
+.mono{font-family:var(--fm);font-size:0.68rem;}
+.rp{display:inline-flex;align-items:center;gap:3px;font-family:var(--fm);font-size:0.6rem;padding:2px 6px;border-radius:3px;white-space:nowrap;}
+.rph{background:rgba(239,68,68,0.15);color:#fca5a5;}
+.rpm{background:rgba(245,158,11,0.15);color:#fcd34d;}
+.rpl{background:rgba(16,185,129,0.15);color:#6ee7b7;}
+.rb{width:80px;}
+.rbw{height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;}
+.rbf{height:100%;border-radius:2px;}
+.ab{background:var(--s3);border:1px solid var(--b);font-size:0.65rem;padding:3px 8px;border-radius:4px;cursor:pointer;color:var(--m);transition:all 0.2s;font-family:var(--fb);}
+.ab:hover{border-color:var(--ac);color:var(--ac);}
+.ab.inv{border-color:rgba(239,68,68,0.3);color:#fca5a5;}
+.ab.inv:hover{background:rgba(239,68,68,0.1);}
+ 
+/* ALERTS */
+.af{display:flex;flex-direction:column;gap:7px;max-height:460px;overflow-y:auto;}
+.af::-webkit-scrollbar{width:2px;}
+.af::-webkit-scrollbar-thumb{background:var(--b);}
+.ac{background:var(--s2);border-radius:8px;padding:11px;border-left:2px solid;}
+.ac.HIGH{border-color:var(--danger);}
+.ac.MEDIUM{border-color:var(--warn);}
+.ac.LOW{border-color:var(--safe);}
+.ac.ack{opacity:0.5;}
+.ar1{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.at{font-size:0.78rem;font-weight:600;}
+.atime{font-family:var(--fm);font-size:0.62rem;color:var(--m);}
+.desc{font-size:0.7rem;color:var(--m);line-height:1.5;}
+.aa{display:flex;gap:5px;margin-top:7px;}
+.abtn{font-size:0.62rem;padding:3px 7px;border-radius:3px;cursor:pointer;border:none;font-family:var(--fb);}
+.abtn.inv{background:rgba(239,68,68,0.18);color:#fca5a5;}
+.abtn.ack{background:rgba(255,255,255,0.06);color:var(--m);}
+ 
+/* XAI PANEL */
+.xi{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+.xi-item{background:var(--s2);border-radius:7px;padding:10px;}
+.xi-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.xi-f{font-size:0.76rem;font-weight:600;}
+.xi-w{font-family:var(--fm);font-size:0.67rem;}
+.xi-bar{height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;margin-bottom:4px;}
+.xi-fill{height:100%;border-radius:2px;}
+.xi-d{font-size:0.68rem;color:var(--m);line-height:1.4;}
+ 
+/* MODEL STATUS */
+.ml-list{display:flex;flex-direction:column;gap:8px;margin-top:4px;}
+.mli{background:var(--s2);border-radius:8px;padding:11px;display:flex;align-items:center;gap:10px;}
+.mli-i{font-size:1rem;}
+.mli-name{font-size:0.78rem;font-weight:600;}
+.mli-meta{font-size:0.65rem;color:var(--m);font-family:var(--fm);}
+.ms{font-size:0.62rem;font-family:var(--fm);padding:2px 7px;border-radius:3px;}
+.ms-live{background:rgba(16,185,129,0.12);color:#6ee7b7;}
+.ms-sched{background:rgba(59,130,246,0.12);color:#93c5fd;}
+ 
+/* DETECTION RESULT */
+.dr{background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:12px;margin-top:8px;display:none;}
+.dr-title{font-family:var(--fm);font-size:0.68rem;color:var(--safe);margin-bottom:6px;}
+.dr-rows{display:flex;flex-direction:column;gap:4px;}
+.drr{display:flex;justify-content:space-between;font-size:0.72rem;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.drr:last-child{border:none;}
+ 
+/* MODAL OVERLAY */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--s1);border:1px solid var(--b);border-radius:16px;width:680px;max-width:95vw;max-height:85vh;overflow-y:auto;padding:28px;}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.modal-title{font-family:var(--fh);font-size:1.1rem;font-weight:800;}
+.modal-close{background:rgba(255,255,255,0.06);border:none;color:var(--text);width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:1rem;}
+.modal-section{margin-bottom:18px;}
+.modal-label{font-family:var(--fm);font-size:0.65rem;color:var(--m);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.modal-stat{background:var(--s2);border-radius:8px;padding:12px;}
+.ms-label{font-family:var(--fm);font-size:0.6rem;color:var(--m);margin-bottom:4px;}
+.ms-val{font-family:var(--fh);font-size:1.2rem;font-weight:800;}
+ 
+@media(max-width:1000px){.kpis{grid-template-columns:repeat(3,1fr)}.g3,.g2,.g23{grid-template-columns:1fr}.sb{width:180px}.main{margin-left:180px}}
+@media(max-width:680px){.sb{display:none}.main{margin-left:0}.kpis{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+ 
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-brand">
+    <div class="lb">🛡️</div>
+    <div><div class="bn">Insider Threat<span style="color:var(--danger)"> Detection</span></div><div class="bs">ADMIN · SOC</div></div>
+  </div>
+  <div class="sec">Overview</div>
+  <a class="ni active" href="/admin">🏠 Dashboard</a>
+  <a class="ni" href="#">🚨 Alerts <span class="nb">{{ alerts|selectattr('acknowledged','equalto',0)|list|length }}</span></a>
+  <a class="ni" href="#">📊 Analytics</a>
+  <div class="sec">Users</div>
+  <a class="ni" href="#">👥 All Users</a>
+  <a class="ni" href="#">⚠️ High Risk <span class="nb">{{ high_risk|selectattr('level','equalto','HIGH')|list|length }}</span></a>
+  <a class="ni" href="#">📋 Audit Logs</a>
+  <a class="ni" href="#">🔑 Access Control</a>
+  <div class="sec">ML Models</div>
+  <a class="ni" href="#">🌲 Isolation Forest</a>
+  <a class="ni" href="#">🧠 LSTM Model</a>
+  <a class="ni" href="#">📈 Metrics</a>
+  <div class="sec">System</div>
+  <a class="ni" href="#">⚙️ Config</a>
+  <a class="ni" href="/logout">← Logout</a>
+  <div class="sb-admin">
+    <div class="aav">AK</div>
+    <div>
+      <div style="font-size:0.78rem;font-weight:600;">Admin Kumar</div>
+      <div style="font-size:0.6rem;color:var(--m);font-family:var(--fm);">SECURITY_ADMIN</div>
+    </div>
+  </div>
+</aside>
+ 
+<!-- MAIN -->
+<div class="main">
+  <div class="tb">
+    <div class="tb-l">
+      <div class="tb-t">Security Operations Center</div>
+      <div class="tl"><div class="p"></div>THREAT LEVEL: ELEVATED</div>
+    </div>
+    <div class="tb-r">
+      <div class="clk" id="clock">--:--:--</div>
+      <button class="run-btn" id="run-btn" onclick="runDetection()">⚡ Run ML Detection</button>
+      <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+  </div>
+ 
+  <div class="content">
+ 
+    <!-- KPIs -->
+    <div class="kpis" id="kpis">
+      <div class="kpi red">
+        <div class="kl">High Risk Users</div>
+        <div class="kv red" id="kpi-high">{{ high_risk|selectattr('level','equalto','HIGH')|list|length }}</div>
+        <div class="kt tup">▲ Requires immediate attention</div>
+      </div>
+      <div class="kpi yellow">
+        <div class="kl">Unacked Alerts</div>
+        <div class="kv yellow" id="kpi-alerts">{{ alerts|selectattr('acknowledged','equalto',0)|list|length }}</div>
+        <div class="kt tup">▲ Pending review</div>
+      </div>
+      <div class="kpi blue">
+        <div class="kl">Total Events</div>
+        <div class="kv blue" id="kpi-events">—</div>
+        <div class="kt">Across all users</div>
+      </div>
+      <div class="kpi green">
+        <div class="kl">Users Monitored</div>
+        <div class="kv green">{{ all_users|length }}</div>
+        <div class="kt tdown">↓ All active</div>
+      </div>
+      <div class="kpi pur">
+        <div class="kl">ML Accuracy</div>
+        <div class="kv pur">98.7%</div>
+        <div class="kt">F1 Score: 0.94</div>
+      </div>
+    </div>
+ 
+    <!-- CHARTS ROW -->
+    <div class="g3">
+      <div class="card">
+        <div class="ch">
+          <div><div class="ct">Organization Risk Trend</div><div class="cs">Daily aggregated risk score — all users</div></div>
+          <span class="ca">Full History →</span>
+        </div>
+        <canvas id="orgChart"></canvas>
+      </div>
+      <div class="card">
+        <div class="ch"><div><div class="ct">Risk Distribution</div><div class="cs">User tier breakdown</div></div></div>
+        <canvas id="distChart"></canvas>
+      </div>
+    </div>
+ 
+    <!-- USER RISK TABLE -->
+    <div class="card">
+      <div class="ch">
+        <div><div class="ct">🎯 User Risk Leaderboard — Live</div><div class="cs">All flagged users sorted by risk score</div></div>
+        <span class="ca">View All {{ all_users|length }} Users →</span>
+      </div>
+      <div class="tw">
+        <table>
+          <thead>
+            <tr><th>#</th><th>User ID</th><th>Name</th><th>Dept</th><th>Risk Score</th><th>Level</th><th>Risk Bar</th><th>Baseline Files</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+          {% set ns = namespace(rank=1) %}
+          {% for u in all_users %}
+          {% set score = u.score if u.score is defined else 0 %}
+          {% set level = u.level if u.level is defined else 'LOW' %}
+          <tr>
+            <td class="mono">{{ '%02d'|format(ns.rank) }}</td>
+            <td class="mono" style="color:{% if level=='HIGH' %}var(--danger){% elif level=='MEDIUM' %}var(--warn){% else %}var(--safe){% endif %}">{{ u.user_id }}</td>
+            <td>{{ u.name }}</td>
+            <td style="color:var(--m)">{{ u.department }}</td>
+            <td class="mono" style="color:{% if level=='HIGH' %}var(--danger){% elif level=='MEDIUM' %}var(--warn){% else %}var(--safe){% endif %};font-weight:700">{{ score }}/100</td>
+            <td><span class="rp rp{% if level=='HIGH' %}h{% elif level=='MEDIUM' %}m{% else %}l{% endif %}">⬤ {{ level }}</span></td>
+            <td class="rb"><div class="rbw"><div class="rbf" style="width:{{ score }}%;background:{% if level=='HIGH' %}var(--danger){% elif level=='MEDIUM' %}var(--warn){% else %}var(--safe){% endif %};"></div></div></td>
+            <td class="mono">{{ u.baseline_files }}</td>
+            <td>
+              <button class="ab {% if level=='HIGH' %}inv{% endif %}" onclick="openModal('{{ u.user_id }}','{{ u.name }}','{{ u.department }}','{{ level }}','{{ score }}')">
+                {% if level=='HIGH' %}🔍 Investigate{% else %}View{% endif %}
+              </button>
+            </td>
+          </tr>
+          {% set ns.rank = ns.rank + 1 %}
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+ 
+    <!-- ALERTS + XAI -->
+    <div class="g23">
+      <div class="card">
+        <div class="ch">
+          <div><div class="ct">🚨 Live Alert Feed</div><div class="cs">Newest anomaly alerts — click to investigate</div></div>
+          <span class="ca" onclick="refreshAlerts()">↻ Refresh</span>
+        </div>
+        <div class="af" id="alert-feed">
+        {% for a in alerts[:15] %}
+        <div class="ac {{ a.severity }} {% if a.acknowledged %}ack{% endif %}" id="alert-{{ a.id }}">
+          <div class="ar1">
+            <span class="at">
+              {% if a.severity=='HIGH' %}🔴{% elif a.severity=='MEDIUM' %}🟡{% else %}🟢{% endif %}
+              {{ a.alert_type.replace('_',' ').title() }} — {{ a.user_id }}
+            </span>
+            <span class="atime">{{ a.created_at[11:16] if a.created_at else '' }}</span>
+          </div>
+          <div class="desc">{{ a.message[:120] }}{% if a.message|length > 120 %}...{% endif %}</div>
+          {% if not a.acknowledged %}
+          <div class="aa">
+            <button class="abtn inv" onclick="openModal('{{ a.user_id }}','{{ a.user_id }}','—','{{ a.severity }}','—')">🔍 Investigate</button>
+            <button class="abtn ack" onclick="ackAlert({{ a.id }})">✓ Acknowledge</button>
+          </div>
+          {% else %}
+          <div style="font-family:var(--fm);font-size:0.62rem;color:var(--m);margin-top:5px;">✓ Acknowledged</div>
+          {% endif %}
+        </div>
+        {% else %}
+        <div style="text-align:center;color:var(--safe);padding:20px;font-family:var(--fm);font-size:0.75rem;">✓ No active alerts</div>
+        {% endfor %}
+        </div>
+        <!-- Detection Results -->
+        <div class="dr" id="detection-result">
+          <div class="dr-title">⚡ ML Detection Results</div>
+          <div class="dr-rows" id="detection-rows"></div>
+        </div>
+      </div>
+ 
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <!-- XAI EXPLANATION -->
+        <div class="card">
+          <div class="ch"><div><div class="ct">🤖 XAI — Anomaly Explanation</div><div class="cs">Why a user is flagged</div></div></div>
+          <div style="font-family:var(--fm);font-size:0.65rem;color:var(--m);margin-bottom:8px;">Showing top-risk user factors</div>
+          <div class="xi">
+            <div class="xi-item">
+              <div class="xi-h"><span class="xi-f">Bulk File Access Volume</span><span class="xi-w" style="color:var(--danger)">+0.42</span></div>
+              <div class="xi-bar"><div class="xi-fill" style="width:84%;background:var(--danger);"></div></div>
+              <div class="xi-d">Files accessed far exceed personal 30-day average and role baseline.</div>
+            </div>
+            <div class="xi-item">
+              <div class="xi-h"><span class="xi-f">Off-Hours System Access</span><span class="xi-w" style="color:var(--danger)">+0.31</span></div>
+              <div class="xi-bar"><div class="xi-fill" style="width:62%;background:#f97316;"></div></div>
+              <div class="xi-d">Login activity detected 2–4 AM, outside this user's historical baseline.</div>
+            </div>
+            <div class="xi-item">
+              <div class="xi-h"><span class="xi-f">Unknown Source IP</span><span class="xi-w" style="color:var(--warn)">+0.18</span></div>
+              <div class="xi-bar"><div class="xi-fill" style="width:36%;background:var(--warn);"></div></div>
+              <div class="xi-d">Login origin not seen in past 90 days of this user's IP whitelist.</div>
+            </div>
+            <div class="xi-item">
+              <div class="xi-h"><span class="xi-f">USB Exfiltration Signal</span><span class="xi-w" style="color:var(--danger)">+0.39</span></div>
+              <div class="xi-bar"><div class="xi-fill" style="width:78%;background:var(--danger);"></div></div>
+              <div class="xi-d">Large external device write immediately after bulk access — exfiltration pattern.</div>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- ML MODELS -->
+        <div class="card">
+          <div class="ch"><div class="ct">ML Model Status</div></div>
+          <div class="ml-list">
+            <div class="mli"><div class="mli-i">🌲</div><div style="flex:1"><div class="mli-name">Isolation Forest</div><div class="mli-meta">n=100 · contamination=0.1</div></div><span class="ms ms-live">LIVE</span></div>
+            <div class="mli"><div class="mli-i">📏</div><div style="flex:1"><div class="mli-name">Risk Score Engine</div><div class="mli-meta">Dynamic · threshold=35/65</div></div><span class="ms ms-live">LIVE</span></div>
+            <div class="mli"><div class="mli-i">🔔</div><div style="flex:1"><div class="mli-name">Alert Manager</div><div class="mli-meta">Multi-type detection</div></div><span class="ms ms-live">LIVE</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- DEPT RISK CHART -->
+    <div class="g2">
+      <div class="card">
+        <div class="ch"><div><div class="ct">Anomaly Events by Hour</div><div class="cs">When suspicious activity peaks</div></div></div>
+        <canvas id="hourChart"></canvas>
+      </div>
+      <div class="card">
+        <div class="ch"><div><div class="ct">Threat Category Breakdown</div><div class="cs">Types of anomalies detected</div></div></div>
+        <canvas id="catChart"></canvas>
+      </div>
+    </div>
+ 
+  </div>
+</div>
+ 
+<!-- MODAL: USER INVESTIGATION -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title" id="modal-title">🔍 User Investigation</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body">
+      <div style="text-align:center;color:var(--m);padding:40px;font-family:var(--fm);font-size:0.75rem;">Loading user details...</div>
+    </div>
+  </div>
+</div>
+ 
+<script>
+// CLOCK
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-IN');},1000);
+ 
+// CHARTS
+const days30=Array.from({length:30},(_,i)=>`D${i+1}`);
+const orgData=[22,25,28,35,30,38,45,50,42,38,32,28,25,30,35,40,45,55,60,52,48,55,62,70,65,72,68,75,78,80];
+new Chart(document.getElementById('orgChart').getContext('2d'),{type:'line',data:{labels:days30,datasets:[{data:orgData,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,0.06)',tension:0.4,fill:true,pointRadius:0,borderWidth:2},{data:Array(30).fill(40),borderColor:'rgba(245,158,11,0.35)',borderDash:[5,4],pointRadius:0,borderWidth:1,fill:false,label:'Threshold'}]},options:{plugins:{legend:{display:false}},scales:{y:{min:0,max:100,grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#475569',font:{family:'DM Mono',size:8}}},x:{grid:{display:false},ticks:{color:'#475569',font:{family:'DM Mono',size:8},maxTicksLimit:7}}}}});
+ 
+const hr={{high_risk|selectattr('level','equalto','HIGH')|list|length}};
+const mr={{high_risk|selectattr('level','equalto','MEDIUM')|list|length}};
+const total={{all_users|length}};
+const lr=Math.max(0,total-hr-mr);
+new Chart(document.getElementById('distChart').getContext('2d'),{type:'doughnut',data:{labels:[`HIGH (${hr})`,`MEDIUM (${mr})`,`LOW (${lr})`],datasets:[{data:[hr,mr,lr],backgroundColor:['rgba(239,68,68,0.8)','rgba(245,158,11,0.8)','rgba(16,185,129,0.8)'],borderWidth:0}]},options:{cutout:'62%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{family:'DM Mono',size:9},padding:8}}}}});
+ 
+new Chart(document.getElementById('hourChart').getContext('2d'),{type:'bar',data:{labels:Array.from({length:24},(_,i)=>`${i}h`),datasets:[{data:[1,2,1,5,7,4,2,1,0,1,3,5,6,5,4,3,2,3,4,5,6,9,10,6],backgroundColor:(ctx)=>{const v=ctx.raw;return v>6?'rgba(239,68,68,0.75)':v>3?'rgba(245,158,11,0.65)':'rgba(59,130,246,0.5)'},borderRadius:2}]},options:{plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#475569',font:{family:'DM Mono',size:8}}},x:{grid:{display:false},ticks:{color:'#475569',font:{family:'DM Mono',size:8}}}}}});
+ 
+new Chart(document.getElementById('catChart').getContext('2d'),{type:'doughnut',data:{labels:['Bulk Access','Privilege Abuse','Off-Hours','Failed Auth','Unknown IP','USB Activity'],datasets:[{data:[30,22,18,14,10,6],backgroundColor:['#ef4444','#f97316','#f59e0b','#3b82f6','#8b5cf6','#06b6d4'],borderWidth:0}]},options:{cutout:'58%',plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{family:'DM Mono',size:8},padding:6}}}}});
+ 
+// FETCH KPI STATS
+fetch('/api/dashboard-stats').then(r=>r.json()).then(d=>{
+  document.getElementById('kpi-events').textContent=d.total_events.toLocaleString();
+}).catch(()=>{});
+ 
+// RUN ML DETECTION
+function runDetection(){
+  const btn=document.getElementById('run-btn');
+  btn.textContent='⏳ Running...';
+  btn.disabled=true;
+  fetch('/api/run-detection',{method:'POST'})
+  .then(r=>r.json())
+  .then(d=>{
+    btn.textContent='✓ Detection Complete';
+    btn.classList.add('running');
+    const dr=document.getElementById('detection-result');
+    const rows=document.getElementById('detection-rows');
+    dr.style.display='block';
+    rows.innerHTML=d.results.map(r=>`
+      <div class="drr">
+        <span class="mono">${r.user_id}</span>
+        <span style="color:${r.risk==='HIGH'?'var(--danger)':r.risk==='MEDIUM'?'var(--warn)':'var(--safe)'};">${r.risk} — ${r.score}/100</span>
+      </div>`).join('');
+    setTimeout(()=>{btn.textContent='⚡ Run ML Detection';btn.classList.remove('running');btn.disabled=false;},5000);
+  }).catch(()=>{btn.textContent='⚡ Run ML Detection';btn.disabled=false;});
+}
+ 
+// ACKNOWLEDGE ALERT
+function ackAlert(id){
+  fetch(`/api/acknowledge-alert/${id}`,{method:'POST'})
+  .then(r=>r.json())
+  .then(()=>{
+    const el=document.getElementById(`alert-${id}`);
+    if(el) el.classList.add('ack');
+  });
+}
+ 
+// MODAL
+function openModal(uid, name, dept, level, score){
+  document.getElementById('modal-title').textContent=`🔍 Investigating: ${name} (${uid})`;
+  document.getElementById('modal').classList.add('open');
+  fetch(`/api/user-detail/${uid}`)
+  .then(r=>r.json())
+  .then(d=>{
+    const u=d.user||{};
+    const r=d.risk||{};
+    const logs=d.logs||[];
+    const alerts=d.alerts||[];
+    const sc=r.score||score||0;
+    const lv=r.level||level||'LOW';
+    const col=lv==='HIGH'?'var(--danger)':lv==='MEDIUM'?'var(--warn)':'var(--safe)';
+    document.getElementById('modal-body').innerHTML=`
+      <div class="modal-section">
+        <div class="modal-label">User Profile</div>
+        <div class="modal-grid">
+          <div class="modal-stat"><div class="ms-label">Department</div><div class="ms-val" style="font-size:1rem">${u.department||dept}</div></div>
+          <div class="modal-stat"><div class="ms-label">Risk Score</div><div class="ms-val" style="color:${col}">${sc}/100</div></div>
+          <div class="modal-stat"><div class="ms-label">Risk Level</div><div class="ms-val" style="color:${col};font-size:1rem">${lv}</div></div>
+          <div class="modal-stat"><div class="ms-label">Baseline Files</div><div class="ms-val" style="font-size:1rem">${u.baseline_files||100}</div></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Recent Activity Log (last 10 events)</div>
+        <table><thead><tr><th>Time</th><th>Action</th><th>Resource</th><th>Files</th><th>Status</th></tr></thead>
+        <tbody>${logs.slice(0,10).map(l=>`
+          <tr>
+            <td class="mono">${(l.timestamp||'').substring(11,16)}</td>
+            <td class="mono">${l.action||''}</td>
+            <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.68rem;color:var(--m)">${l.resource||'—'}</td>
+            <td class="mono">${l.files_accessed||0}</td>
+            <td><span style="font-family:var(--fm);font-size:0.62rem;padding:2px 6px;border-radius:3px;background:${l.status==='suspicious'?'rgba(239,68,68,0.15)':'rgba(16,185,129,0.1)'};color:${l.status==='suspicious'?'#fca5a5':'#6ee7b7'}">${l.status||'normal'}</span></td>
+          </tr>`).join('')}</tbody></table>
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Recent Alerts (${alerts.length})</div>
+        ${alerts.length?alerts.slice(0,3).map(a=>`
+          <div style="background:var(--s2);border-radius:7px;padding:10px;margin-bottom:6px;border-left:2px solid ${a.severity==='HIGH'?'var(--danger)':a.severity==='MEDIUM'?'var(--warn)':'var(--safe)'}">
+            <div style="font-size:0.78rem;font-weight:600;margin-bottom:3px">${a.alert_type.replace(/_/g,' ')}</div>
+            <div style="font-size:0.7rem;color:var(--m)">${(a.message||'').substring(0,120)}</div>
+          </div>`).join(''):
+          '<div style="text-align:center;color:var(--safe);padding:12px;font-family:var(--fm);font-size:0.72rem">✓ No alerts for this user</div>'}
+      </div>`;
+  }).catch(()=>{
+    document.getElementById('modal-body').innerHTML=`
+      <div class="modal-grid">
+        <div class="modal-stat"><div class="ms-label">Department</div><div class="ms-val" style="font-size:1rem">${dept}</div></div>
+        <div class="modal-stat"><div class="ms-label">Risk Score</div><div class="ms-val" style="color:${document.getElementById('modal-title').style.color||'var(--text)'}">${score}/100</div></div>
+      </div>`;
+  });
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+function refreshAlerts(){location.reload();}
+</script>
+</body>
+</html>
